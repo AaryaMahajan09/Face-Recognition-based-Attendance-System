@@ -80,58 +80,56 @@ def mark_attendance_db(prn, department):
     conn = get_connection()
     cur = conn.cursor()
 
-    # 🔹 Get user_id
+    # get user_id
     cur.execute("""
     SELECT users.id
     FROM users
     JOIN students ON users.id = students.user_id
     WHERE students.prn = ?
-    """, (prn,))
+    """,(prn,))
 
     user = cur.fetchone()
     if not user:
         conn.close()
-        return "User not found ❌"
+        return
 
     user_id = user["id"]
 
-    # 🔹 Get active lecture
+    # get active lecture
     cur.execute("""
     SELECT lecture_id, subject, staff_name
     FROM lectures
     WHERE department = ? AND is_active = 1
-    """, (department,))
+    """,(department,))
 
     lecture = cur.fetchone()
     if not lecture:
         conn.close()
-        return "No active lecture ❌"
+        return
 
     lecture_id = lecture["lecture_id"]
 
-    # 🔹 Prevent duplicate attendance
+    # prevent duplicate
     cur.execute("""
     SELECT 1 FROM attendance
     WHERE user_id = ? AND lecture_id = ?
-    """, (user_id, lecture_id))
+    """,(user_id, lecture_id))
 
     if cur.fetchone():
         conn.close()
-        return "Already marked ⚠️"
+        return
 
-    # 🔹 Insert attendance
+    # insert attendance
     cur.execute("""
     INSERT INTO attendance
     (user_id, lecture_id, subject, staff_name, date, time, status)
     VALUES (?, ?, ?, ?, date('now','localtime'), time('now','localtime'), 'Present')
-    """, (user_id, lecture_id, lecture["subject"], lecture["staff_name"]))
+    """,(user_id, lecture_id, lecture["subject"], lecture["staff_name"]))
 
     conn.commit()
     conn.close()
 
     print(f"{prn} marked present ✅")
-
-    return "Attendance marked ✅"
 
 # 🔥 MAIN FUNCTION
 def start_face_attendance(department, logged_in_prn):
