@@ -1,0 +1,16 @@
+Flask==3.0.3
+Werkzeug==3.0.1
+
+numpy==1.26.4
+opencv-python==4.9.0.80
+
+tensorflow==2.15.0
+keras==2.15.0
+keras-facenet==0.3.2
+mtcnn==0.1.1
+
+pillow==10.3.0
+scipy==1.11.4
+
+h5py==3.10.0
+protobuf==4.25.3

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reg.css') }}">
+
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet"/>
+
+<title>Login</title>
+</head>
+
+<body>
+
+<div class="background">
+
+    <div class="box">
+
+        <div class="image">
+            <img src="{{url_for('static', filename='images/scan-img.png')}}" alt="">
+        </div>
+
+        <h1 class="center">AI Face Recognition</h1>
+        <h3 class="center subtitle">Attendance System</h3>
+
+        <div class="login-box">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-msg {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="center">Welcome Back!!</h2>
+            <p class="center subtitle">Sign in to access your dashboard</p>
+
+            <form method="post">
+
+                <input type="hidden" name="role" id="role">
+
+                <h4>Select Role:</h4>
+
+                    <div class="role-container">
+
+                        <button type="button" class="role-btn" onclick="selectRole(this,'student')">
+                        <i class="ri-graduation-cap-line"></i> Student
+                        </button>
+
+                        <button type="button" class="role-btn" onclick="selectRole(this,'staff')">
+                        <i class="ri-book-open-line"></i> Staff
+                        </button>
+
+                    </div>
+
+                <label>Email</label>
+                <input type="email" name="email" class="input">
+
+                <label>Password</label>
+                <input type="password" name="password" class="input">
+
+                <input type="submit" value="Sign In" class="submit">
+
+            </form>
+
+            <div class="register">
+                <p>Haven't Registered?</p>
+                <a href="/register">Register Here</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

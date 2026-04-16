@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='dash.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Welcome back {{user_name}}!</h1>
+        <p>Here is your Attendance overview for today</p>
+    </div>
+
+    <div class="stats">
+
+        <div class="card">
+            <div class="card-title">Today's Status</div>
+            <div class="status-present">Present</div>
+            <div class="card-sub">Marked at 9:05 AM</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Attendance Rate</div>
+            <div class="status-present">{{percentage}}%</div>
+            <div class="card-sub">+2.5% from last month</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Total Classes</div>
+            <div class="status-present">{{total_lec}}</div>
+            <div class="card-sub">This Semester</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Classes Attended</div>
+            <div class="status-present">{{attended_lec}}</div>
+            <div class="card-sub">{{missed}} classes missed</div>
+        </div>
+
+    </div>
+
+    <div class="chart-container">
+
+        <div class="chart-header">
+            <h2>Weekly Attendance</h2>
+            <p>Your Attendance History For this Week</p>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+
+    </div>
+
+    <div class="action-grid">
+
+        <div class="action-card mark">
+            <h3>Mark Attendance</h3>
+            <p>Use face recognition to mark your attendance</p>
+            <button class="btn-blue">Open Camera</button>
+        </div>
+
+        <div class="action-card register">
+            <h3>Register Face</h3>
+            <p>Register your face for attendance recognition</p>
+            <button class="btn-purple">Register Now</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const ctx = document.getElementById('attendanceChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [{
+            data: [100,100,0,100,100,100,0],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.2)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options:{
+        plugins:{
+            legend:{display:false}
+        },
+        scales:{
+            y:{
+                min:0,
+                max:100
+            }
+        }
+    }
+});
+
+</script>
+
+{% endblock %}

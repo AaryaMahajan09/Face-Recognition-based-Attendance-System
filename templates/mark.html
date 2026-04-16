@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.container{
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #1e293b;
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+}
+
+video{
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+button{
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.success{ color: #22c55e; margin-top: 10px; }
+.error{ color: #ef4444; margin-top: 10px; }
+</style>
+
+<div class="container">
+
+    <h2>Mark Attendance</h2>
+
+    <div id="lecture-box">
+        <p>No lecture active</p>
+    </div>
+
+    <!-- CAMERA -->
+    <video id="video" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <button onclick="startCamera()">Start Camera</button>
+
+    <p id="status-msg"></p>
+
+</div>
+
+<script>
+
+let lectureLoaded = false;
+let stream;
+let scanInterval = null;  // ✅ store interval reference
+let studentLat = null;   // ✅ store location
+let studentLon = null;
+
+function getLocation(){
+    navigator.geolocation.getCurrentPosition(
+        function(pos){
+            studentLat = pos.coords.latitude;
+            studentLon = pos.coords.longitude;
+            console.log("Location obtained:", studentLat, studentLon);
+        },
+        function(err){
+            document.getElementById("status-msg").innerText = "❌ Location access denied. Please allow location.";
+            document.getElementById("status-msg").className = "error";
+        }
+    );
+}
+
+// 🔥 CHECK LECTURE
+function checkLecture(){
+fetch("/check_lecture")
+.then(res => res.json())
+.then(data => {
+
+    let box = document.getElementById("lecture-box");
+
+    if(data.active){
+
+        if(!lectureLoaded){
+            box.innerHTML = `
+                <h3>${data.subject}</h3>
+                <p>Teacher: ${data.teacher}</p>
+            `;
+            lectureLoaded = true;
+        }
+
+    }else{
+        box.innerHTML = "<p>No lecture active</p>";
+        lectureLoaded = false;
+    }
+
+});
+}
+
+
+// 🔥 START CAMERA
+function startCamera(){
+
+    if(!studentLat || !studentLon){
+        document.getElementById("status-msg").innerText = "⚠️ Waiting for location...";
+        document.getElementById("status-msg").className = "error";
+        getLocation();
+        return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(s => {
+        stream = s;
+        document.getElementById("video").srcObject = stream;
+
+        scanInterval = setInterval(captureAndSend, 3000);  // ✅ store it
+
+        setTimeout(function(){
+            if(scanInterval){
+                clearInterval(scanInterval);
+                scanInterval = null;
+                stopCamera();
+                document.getElementById("status-msg").innerText = 
+                    "❌ Could not recognize face. Please try again or contact staff.";
+                document.getElementById("status-msg").className = "error";
+            }
+        }, 30000);
+
+    })
+    .catch(() => alert("Camera access denied"));
+}
+
+
+// 🔥 CAPTURE FRAME → SEND TO BACKEND
+function captureAndSend(){
+
+let video = document.getElementById("video");
+let canvas = document.getElementById("canvas");
+let msg = document.getElementById("status-msg");
+
+let ctx = canvas.getContext("2d");
+
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+
+ctx.drawImage(video, 0, 0);
+
+canvas.toBlob(function(blob){
+
+    let formData = new FormData();
+    formData.append("image", blob);
+    formData.append("lat", studentLat);   // ✅ add lat
+    formData.append("lon", studentLon);   // ✅ add lon
+
+    fetch("/face_mark", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if(data.status === "success"){
+            msg.innerText = "✅ Attendance Marked!";
+            msg.className = "success";
+            clearInterval(scanInterval);
+            scanInterval = null;
+            stopCamera();
+
+        } else if(data.message === "No lecture active"){
+            msg.innerText = "⚠️ No lecture is currently running";
+            msg.className = "error";
+
+        } else if(data.message === "Attendance already marked"){
+            msg.innerText = "ℹ️ Attendance already marked for this lecture";
+            msg.className = "success";
+            clearInterval(scanInterval);
+            scanInterval = null;
+            stopCamera();
+
+        } else if(data.message === "Face not recognized"){
+            msg.innerText = "🔄 Scanning... Make sure your face is visible";
+            msg.className = "error";
+
+        }else {
+            msg.innerText = "❌ " + data.message;   // ✅ catch all other messages like location error
+            msg.className = "error";
+        }
+
+    });
+
+});
+
+}
+
+
+// 🔥 STOP CAMERA
+function stopCamera(){
+if(stream){
+    stream.getTracks().forEach(track => track.stop());
+}
+}
+
+
+// 🔁 AUTO CHECK
+getLocation();
+setInterval(checkLecture, 5000);
+checkLecture();
+
+</script>
+
+{% endblock %}

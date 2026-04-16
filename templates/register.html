@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reg.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet"/>
+
+<title>Register</title>
+</head>
+
+<body>
+
+<div class="background">
+
+<div class="box">
+
+<div class="image">
+<img src="{{url_for('static', filename='images/scan-img.png')}}" alt="">
+</div>
+
+<h1 class="center">AI Face Recognition</h1>
+<h3 class="subtitle center">Attendance System</h3>
+
+<div class="login-box">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-msg {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+<h2 class="center">Welcome!!</h2>
+<p class="center subtitle">Sign up to access</p>
+
+<form method="post" action="/register">
+
+<label>Name</label>
+<input type="text" name="name" class="input" required>
+
+<label>PRN</label>
+<input type="text" name="prn" class="input" required>
+
+<label>Department</label>
+<select name="department" class="input" required>
+    <option value="">Select Department</option>
+    <option value="computer">Computer</option>
+    <option value="it">Information Technology</option>
+    <option value="ai">Artificial Intelligence</option>
+    <option value="cyber">Cyber Security</option>
+    <option value="extc">Electronics & Telecommunication</option>
+    <option value="ecs">ECS</option>
+    <option value="vlsi">VLSI</option>
+</select>
+
+<label>Email</label>
+<div class="otp-row">
+    <input type="email" name="email" id="email" class="input" placeholder="Enter Email" required>
+    <button type="button" class="otp-btn" onclick="sendOtp()">Send OTP</button>
+</div>
+
+<label>Enter OTP</label>
+<div class="otp-row">
+    <input type="text" id="otp_input" class="input" placeholder="6 digit OTP">
+    <button type="button" class="otp-btn" onclick="verifyOtp()">Verify</button>
+</div>
+
+<p id="otp-status"></p>
+
+<label>Password</label>
+<input type="password" name="password" class="input" required>
+
+<input type="submit" value="Sign Up" class="submit">
+
+</form>
+
+</div>
+</div>
+</div>
+
+<script>
+let otpVerified = false;
+
+function sendOtp(){
+    let email = document.getElementById("email").value;
+    if(!email){ alert("Enter email first"); return; }
+
+    let formData = new FormData();
+    formData.append("email", email);
+
+    fetch("/send_otp", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        let msg = document.getElementById("otp-status");
+        msg.innerText = "✅ OTP sent to " + email;
+        msg.style.color = "#22c55e";
+    });
+}
+
+function verifyOtp(){
+    let email = document.getElementById("email").value;
+    let otp = document.getElementById("otp_input").value;
+
+    let formData = new FormData();
+    formData.append("email", email);
+    formData.append("otp", otp);
+
+    fetch("/verify_otp", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        let msg = document.getElementById("otp-status");
+        if(data.status === "success"){
+            otpVerified = true;
+            msg.innerText = "✅ Email verified!";
+            msg.style.color = "#22c55e";
+        } else {
+            msg.innerText = "❌ " + data.message;
+            msg.style.color = "#ef4444";
+        }
+    });
+}
+
+document.querySelector("form").addEventListener("submit", function(e){
+    if(!otpVerified){
+        e.preventDefault();
+        let msg = document.getElementById("otp-status");
+        msg.innerText = "❌ Please verify your email via OTP first";
+        msg.style.color = "#ef4444";
+    }
+});
+</script>
+
+</body>
+</html>

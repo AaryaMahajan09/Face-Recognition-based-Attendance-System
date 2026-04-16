@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='img.css') }}">
+
+<div class="page-container">
+
+    <div class="reg-img">
+        <h1>Register Face</h1>
+        <p>Register your face for attendance recognition</p>
+
+        <div class="img-rec">
+
+            <div class="flex header-row">
+                <img src="{{url_for('static', filename='images/scan-img.png')}}" class="scan-img">
+                <h4>Face Capture</h4>
+            </div>
+
+            <p class="subtext">Position your face within the frame</p>
+
+            <div class="camera">
+                <video id="video" autoplay></video>
+            </div>
+
+            <canvas id="canvas" style="display:none;"></canvas>
+
+            <button class="camera-btn" onclick="startCamera()">
+                <i class="ri-camera-4-line"></i> Start Camera
+            </button>
+
+            <button class="camera-btn" onclick="captureImage()">
+                📸 Capture & Register
+            </button>
+
+            <p id="status"></p>
+
+        </div>
+    </div>
+
+
+    <div class="reg-img2">
+        <h4>Registration Guidelines</h4>
+
+        <div class="guideline-row">
+
+            <div class="cont">
+                <div class="check">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <p>Face Registration will be available only once</p>
+                </div>
+
+                <div class="check">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <p>Ensure good lighting on your face</p>
+                </div>
+            </div>
+
+            <div class="cont">
+                <div class="check">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <p>Look directly at the camera</p>
+                </div>
+
+                <div class="check">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <p>Remove glasses or face coverings</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+let video = document.getElementById("video");
+let canvas = document.getElementById("canvas");
+let statusText = document.getElementById("status");
+
+let stream;
+
+// 🎥 Start camera
+function startCamera(){
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(s => {
+        stream = s;
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        alert("Camera not accessible");
+    });
+}
+
+// 📸 Capture image and send to backend
+function captureImage(){
+
+    let canvas = document.getElementById("canvas");
+    let video = document.getElementById("video");
+
+    let context = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(function(blob){
+
+        let formData = new FormData();
+        formData.append("image", blob, "face.jpg");
+
+        fetch("/register_img", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            statusText.innerText = data.message;
+
+            // 🔥 STOP CAMERA HERE
+            if(stream){
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        });
+
+    }, "image/jpeg");
+}
+</script>
+
+{% endblock %}

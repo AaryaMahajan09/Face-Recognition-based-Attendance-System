@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='view.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>My Attendance</h1>
+    <p class="subtitle">View your attendance history and statistics</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Attendance Percentage</h3>
+        <div class="percentage">{{percentage}}%</div>
+        <div class="progress-bar">
+          <div class="progress" style="width:93%"></div>
+        </div>
+        <p class="small">{{attended_lec}} out of {{total_lec}} classes</p>
+      </div>
+
+      <div class="card">
+        <h3>Classes Attended</h3>
+        <div class="stat green">✔ {{attended_lec}}</div>
+        <p class="small">This semester</p>
+      </div>
+
+      <div class="card">
+        <h3>Classes Missed</h3>
+        <div class="stat red">✖ {{missed}}</div>
+        <p class="small">This semester</p>
+      </div>
+    </div>
+
+    <div class="history">
+      <h2>Attendance History</h2>
+      <p class="subtitle">Your recent attendance records</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        {% for attendance in past_attendance %}
+        <tbody>
+          <tr>
+            <td>{{attendance.subject}}</td>
+            <td>{{attendance.start_time}}</td>
+            {% if attendance.status == "Present" %}
+              <td><span class="badge present">{{attendance.status}}</span></td>
+            {% else %}
+              <td><span class="badge present">Absent</span></td>
+
+            {% endif %}
+          </tr>
+        </tbody>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+{% endblock %}

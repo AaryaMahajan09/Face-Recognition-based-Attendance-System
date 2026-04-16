@@ -1,0 +1,29 @@
+{% extends "base_staff.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='startattendance.css') }}">
+
+
+
+
+<div class="card1">
+
+    <h2>Lecture Running</h2>
+
+    <p><b>Subject:</b> {{ lecture.subject }}</p>
+    <p><b>Staff Name:</b> {{ lecture.staff_name }}</p>
+    <p><b>Start Time:</b> {{ lecture.start_time }}</p>
+    <p><b>End Time:</b> {{ lecture.end_time }}</p>
+
+    <form action="/stop_lec" method="post">
+        <button type="submit" class="stop-btn">■ Stop Lecture</button>
+    </form>
+
+</div>
+
+
+
+
+
+{% endblock %}

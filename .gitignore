@@ -1,0 +1,36 @@
+# Database
+*.db
+*.sqlite3
+
+# Environment variables (VERY IMPORTANT)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Jupyter notebooks (optional)
+*.ipynb
+
+# Temp files
+tempCodeRunnerFile.py
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Flask instance folder
+instance/
+
+# Face data (IMPORTANT for your project)
+image_data/
