@@ -62,7 +62,7 @@ def recognize(frame, known_embeddings, known_names, known_reg_nos):
         min_distance = np.min(distances)
         index = np.argmin(distances)
 
-        if min_distance < 0.75:
+        if min_distance < 0.70:
             name = known_names[index]
             reg_no = known_reg_nos[index]
         else:
@@ -142,6 +142,10 @@ def start_face_attendance(department, logged_in_prn):
 
     cap = cv2.VideoCapture(0)
 
+    if not cap.isOpened():
+        print("Camera not accessible")
+        return
+
     last_mark_time = {}   # 🔥 cooldown dictionary
 
     print("📷 Face attendance started...")
@@ -156,12 +160,24 @@ def start_face_attendance(department, logged_in_prn):
 
         current_time = time.time()
 
+        if len(results)>1:
+            cv2.putText(frame, "Multiple Faces Detected",
+                        (20,50),cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0,0,255),3)
+            
+            cv2.imshow("Face Ateendance",frame)
+            continue
+
         for (x, y, w, h, name, reg_no) in results:
 
             # 🔐 Authorization check
             if reg_no == logged_in_prn:
                 label = f"{name} (Authorized)"
                 color = (0, 255, 0)
+            
+            elif reg_no is None:
+                label = "Unknown Face"
+                color = (0, 0, 255)
             else:
                 label = "Unauthorized"
                 color = (0, 0, 255)
