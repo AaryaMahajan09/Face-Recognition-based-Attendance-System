@@ -45,6 +45,7 @@
         <thead>
           <tr>
             <th>Subject</th>
+            <th>Date</th>
             <th>Time</th>
             <th>Status</th>
           </tr>
@@ -53,6 +54,7 @@
         <tbody>
           <tr>
             <td>{{attendance.subject}}</td>
+            <td>{{attendance.date}}</td>
             <td>{{attendance.start_time}}</td>
             {% if attendance.status == "Present" %}
               <td><span class="badge present">{{attendance.status}}</span></td>
