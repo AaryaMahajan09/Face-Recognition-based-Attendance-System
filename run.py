@@ -282,20 +282,14 @@ def dashboard():
     row = cur.fetchone()
     missed_lec = row["total"] if row else 0
 
-    session["total_lec"] = total_lec
-    session["attended_lec"] = attended_lec
-    session["missed"] = missed_lec
-
     if total_lec == 0:
         percentage = 0
     else:
         percentage = round((attended_lec / total_lec) * 100, 2)
 
-    session["percentage"] = percentage
-
     conn.close()
 
-    return render_template("dashboard.html", total_lec= session["total_lec"], attended_lec=session["attended_lec"],missed=session["missed"],percentage=session["percentage"])
+    return render_template("dashboard.html", total_lec= total_lec, attended_lec=attended_lec,missed=missed_lec,percentage=percentage)
 
 
 @app.route("/dashboard_staff")
@@ -412,9 +406,41 @@ def view():
 
     past_attendance = cur.fetchall()
 
+    cur.execute("""
+    SELECT COUNT(*) AS total FROM lectures
+    WHERE department = ? 
+    """,(department,))
+
+    row = cur.fetchone()
+    total_lec = row["total"] if row else 0
+
+    cur.execute("""
+    SELECT COUNT(lecture_id) AS total FROM attendance
+    WHERE user_id = ?
+    AND status = "Present"
+    """,(id,))
+
+    row = cur.fetchone()
+    attended_lec = row["total"] if row else 0
+
+    cur.execute("""
+    SELECT COUNT(lecture_id) AS total FROM attendance
+    WHERE user_id = ?
+    AND status = "Absent"
+    """,(id,))
+
+    row = cur.fetchone()
+    missed_lec = row["total"] if row else 0
+
+    if total_lec == 0:
+        percentage = 0
+    else:
+        percentage = round((attended_lec / total_lec) * 100, 2)
+
+
     conn.close()
 
-    return render_template("view.html", total_lec= session["total_lec"], attended_lec=session["attended_lec"], missed=session["missed"], percentage=session["percentage"], past_attendance=past_attendance)
+    return render_template("view.html", total_lec= total_lec, attended_lec=attended_lec, missed=missed_lec, percentage=percentage, past_attendance=past_attendance)
 
 
 
