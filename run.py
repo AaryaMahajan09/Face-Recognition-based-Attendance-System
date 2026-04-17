@@ -26,8 +26,8 @@ GMAIL = ""
 APP_PASSWORD = ""
 
 
-COLLEGE_LAT = 0
-COLLEGE_LON = 0
+COLLEGE_LAT = 18.998951751419046
+COLLEGE_LON = 72.81767908174002
 
 
 
@@ -394,7 +394,7 @@ def view():
     cur = conn.cursor()
 
     cur.execute("""
-    SELECT lectures.subject, lectures.start_time, attendance.status
+    SELECT lectures.subject, lectures.start_time, attendance.status, attendance.date
     FROM lectures
     LEFT JOIN attendance ON lectures.lecture_id = attendance.lecture_id
     AND attendance.user_id = ?
@@ -547,7 +547,7 @@ def face_mark():
 def mark_attendance():
 
     user_id = session["user_id"]
-    department = session.get("user_department")
+    department = session["user_department"]
 
     conn = get_connection()
     cur = conn.cursor()
@@ -567,21 +567,25 @@ def mark_attendance():
         return {"status":"error","message":"No lecture running"}
 
     lecture_id = lecture["lecture_id"]
+    subject = lecture["subject"]
+    staff = lecture["staff_name"]
 
+   
     cur.execute("""
-    SELECT 1 FROM attendance
-    WHERE user_id = ? AND lecture_id = ?
-    """, (user_id, lecture_id))
+    SELECT * FROM attendance
+    WHERE user_id=? AND lecture_id=?
+    """,(user_id, lecture_id))
 
-    if cur.fetchone():
+    existing = cur.fetchone()
+
+    if existing:
         conn.close()
-        return {"status": "error", "message": "Attendance already marked for this lecture"}
+        return {"status":"error","message":"Attendance already marked"}
 
     cur.execute("""
-        INSERT INTO attendance
-        (user_id, lecture_id, subject, staff_name, department, date, time, status)
-        VALUES (?, ?, ?, ?, ?, date('now', 'localtime'), time('now', 'localtime'), 'Present')
-    """, (user_id, lecture_id, lecture["subject"], lecture["staff_name"], department))
+    INSERT INTO attendance(user_id,lecture_id,subject,staff_name, department,date,time,status)
+    VALUES(?,?,?,?,?,date('now'),time('now','localtime'),'Present')
+    """,(user_id,lecture_id,subject,staff, department))
 
     conn.commit()
     conn.close()
@@ -761,7 +765,10 @@ def stop_lec():
 
     # print("--------------------------\n")
 
-    cur.execute("SELECT id FROM users WHERE role='student'")
+    cur.execute("""
+        SELECT id FROM users
+        WHERE role = 'student' AND department = ?
+    """, (department,))
     students = cur.fetchall()
 
     cur.execute("""
@@ -774,7 +781,7 @@ def stop_lec():
     for student in students:
         if student["id"] not in present_students:
             cur.execute("""
-            INSERT INTO attendance (user_id, lecture_id,subject,staff_name,department,date,time, status)
+            INSERT OR IGNORE INTO attendance (user_id, lecture_id,subject,staff_name,department,date,time, status)
             VALUES (?, ?,?,?,?,date('now'),time('now','localtime'), "Absent")
             """, (student["id"], lecture_id, subject, staff, department))
 
@@ -830,7 +837,56 @@ def check_lecture():
 
     return {"active": False}
 
+@app.route("/weekly_attendance")
+@login_required
+def weekly_attendance():
+    conn = get_connection()
+    cur = conn.cursor()
 
+    cur.execute("""
+        SELECT date,
+               COUNT(CASE WHEN status='Present' THEN 1 END) * 100.0 / COUNT(*) as percentage
+        FROM attendance
+        WHERE user_id = ?
+        GROUP BY date
+        ORDER BY date
+    """, (session["user_id"],))
+
+    data = cur.fetchall()
+
+    return {
+        "labels": [row[0] for row in data],
+        "values": [round(row[1], 2) for row in data]
+    }
+
+@app.route("/subject_attendance")
+@login_required
+def subject_attendance():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT subject,
+               COUNT(CASE WHEN status='Present' THEN 1 END) as present,
+               COUNT(*) as total
+        FROM attendance
+        WHERE user_id = ?
+        GROUP BY subject
+    """, (session["user_id"],))
+
+    data = cur.fetchall()
+
+    return {
+        "subjects": [
+            {
+                "subject": row[0],
+                "present": row[1],
+                "total": row[2],
+                "percentage": round((row[1] / row[2]) * 100, 2) if row[2] else 0
+            }
+            for row in data
+        ]
+    }
 
 @app.route("/logout")
 def logout():

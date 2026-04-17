@@ -5,6 +5,11 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='dash.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+
+<script src="{{ url_for('static', filename='js/core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
 <div class="dashboard-container">
 
     <div class="dashboard-header">
@@ -19,7 +24,7 @@
             <div class="status-present">Present</div>
             <div class="card-sub">Marked at 9:05 AM</div>
         </div>
-
+        
         <div class="card">
             <div class="card-title">Attendance Rate</div>
             <div class="status-present">{{percentage}}%</div>
@@ -38,69 +43,42 @@
             <div class="card-sub">{{missed}} classes missed</div>
         </div>
 
+        
+
     </div>
 
-    <div class="chart-container">
+    <div class="stats">
 
-        <div class="chart-header">
+        <div class="card">
             <h2>Weekly Attendance</h2>
-            <p>Your Attendance History For this Week</p>
-        </div>
-
-        <div class="chart-wrapper">
             <canvas id="attendanceChart"></canvas>
         </div>
 
+        <div class="card">
+            <h2>Subject-wise Attendance</h2>
+            <canvas id="subjectChart"></canvas>
+        </div>
     </div>
 
-    <div class="action-grid">
 
-        <div class="action-card mark">
-            <h3>Mark Attendance</h3>
-            <p>Use face recognition to mark your attendance</p>
-            <button class="btn-blue">Open Camera</button>
+        <div class="card" id="attendanceWarning">
+            <h3>Attendance Status</h3>
+            <p id="warningText"></p>
         </div>
 
-        <div class="action-card register">
-            <h3>Register Face</h3>
-            <p>Register your face for attendance recognition</p>
-            <button class="btn-purple">Register Now</button>
-        </div>
 
-    </div>
 
 </div>
 
-
-<script>
-
-const ctx = document.getElementById('attendanceChart');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        datasets: [{
-            data: [100,100,0,100,100,100,0],
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59,130,246,0.2)',
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options:{
-        plugins:{
-            legend:{display:false}
-        },
-        scales:{
-            y:{
-                min:0,
-                max:100
-            }
-        }
-    }
-});
-
+<script id="dashboard-data" type="application/json">
+{{ {
+    "percentage": percentage,
+    "attended": attended_lec,
+    "total": total_lec
+} | tojson }}
 </script>
+
+
+
 
 {% endblock %}
