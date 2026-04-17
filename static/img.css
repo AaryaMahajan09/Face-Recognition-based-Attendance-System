@@ -7,16 +7,19 @@ box-sizing:border-box;
 body{
 font-family:Arial, Helvetica, sans-serif;
 color:white;
+overflow-x:hidden;
 }
-
 
 
 .page-container{
 display:flex;
 flex-direction:column;
 align-items:center;
+padding:20px;
 }
 
+
+/* IMAGE SECTION */
 
 .reg-img{
 width:900px;
@@ -30,6 +33,7 @@ margin-top:8px;
 }
 
 
+/* IMAGE RECORD BOX */
 
 .img-rec{
 background:#111827;
@@ -41,11 +45,13 @@ padding:30px;
 }
 
 
+/* HEADER */
 
 .header-row{
 display:flex;
 align-items:center;
 gap:10px;
+flex-wrap:wrap;
 }
 
 .scan-img{
@@ -58,6 +64,7 @@ margin-top:6px;
 }
 
 
+/* CAMERA */
 
 .camera{
 background:#1d263a;
@@ -78,20 +85,23 @@ color:#cbd5e1;
 }
 
 
+/* BUTTON */
 
 .camera-btn{
 margin-top:25px;
 width:100%;
-padding:12px;
+padding:14px;
 border-radius:10px;
 border:none;
 background:#3b82f6;
 color:white;
 font-size:16px;
 cursor:pointer;
+min-height:44px;
 }
 
 
+/* GUIDELINES */
 
 .reg-img2{
 width:900px;
@@ -111,6 +121,7 @@ margin-bottom:15px;
 .guideline-row{
 display:flex;
 justify-content:space-between;
+gap:20px;
 }
 
 .cont{
@@ -123,6 +134,7 @@ align-items:center;
 gap:10px;
 margin-bottom:12px;
 color:grey;
+flex-wrap:wrap;
 }
 
 .check i{
@@ -130,15 +142,104 @@ color:#3b82f6;
 }
 
 
+/* VIDEO */
+
 video{
-    width: 100%;
-    height: 250px;
-    border-radius: 10px;
-    background: black;
-    object-fit: cover;
+width:100%;
+height:250px;
+border-radius:10px;
+background:black;
+object-fit:cover;
 }
 
 #status{
-    margin-top: 15px;
-    font-weight: bold;
+margin-top:15px;
+font-weight:bold;
+}
+
+
+/* ========================= */
+/* TABLET */
+/* ========================= */
+
+@media (max-width:1024px){
+
+.guideline-row{
+flex-direction:column;
+}
+
+.cont{
+width:100%;
+}
+
+}
+
+
+/* ========================= */
+/* MOBILE */
+/* ========================= */
+
+@media (max-width:768px){
+
+.page-container{
+padding:15px;
+}
+
+.reg-img,
+.reg-img2{
+width:100%;
+max-width:100%;
+}
+
+.img-rec{
+padding:20px;
+}
+
+.camera{
+height:260px;
+}
+
+.camera-logo{
+font-size:50px;
+}
+
+video{
+height:200px;
+}
+
+.camera-btn{
+font-size:15px;
+padding:12px;
+}
+
+}
+
+
+/* ========================= */
+/* SMALL PHONES */
+/* ========================= */
+
+@media (max-width:480px){
+
+.page-container{
+padding:10px;
+}
+
+.img-rec,
+.reg-img2{
+padding:15px;
+}
+
+.camera{
+height:220px;
+}
+
+.camera-logo{
+font-size:40px;
+}
+
+video{
+height:180px;
+}
+
 }

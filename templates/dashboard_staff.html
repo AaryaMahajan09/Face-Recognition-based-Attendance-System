@@ -39,16 +39,19 @@
     <div class="card">
       <h4>System Status</h4>
       <h2 style="color: #22c55e;">
-    {% if active_lecture %}
-        Active
-    {% else %}
-        Online
-    {% endif %}</h2>
-      <p> {% if active_lecture %}
-              {{ active_lecture.subject }} running
-          {% else %}
-              No lecture active
-          {% endif %}</p>
+        {% if active_lecture %}
+          Active
+        {% else %}
+          Online
+        {% endif %}
+      </h2>
+      <p>
+        {% if active_lecture %}
+          {{ active_lecture.subject }} running
+        {% else %}
+          No lecture active
+        {% endif %}
+      </p>
     </div>
   </div>
 
@@ -61,51 +64,64 @@
       <p>Present vs Absent this week</p>
 
       <div class="chart-container">
-        <canvas id="attendanceChart"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="attendanceChart"></canvas>
+        </div>
       </div>
     </div>
 
+    <!-- RECENT LIST -->
     <div class="recent-list">
       {% for r in recent %}
       <div class="recent-row">
-          <!-- Avatar circle with first letter -->
-          <div class="avatar">{{ r.name[0].upper() }}</div>
+        <div class="avatar">{{ r.name[0].upper() }}</div>
 
-          <div class="info">
-              <p class="name">{{ r.name }}</p>
-              <p class="prn">{{ r.prn }}</p>
-          </div>
+        <div class="info">
+          <p class="name">{{ r.name }}</p>
+          <p class="prn">{{ r.prn }}</p>
+        </div>
 
-          <span class="status {% if r.status == 'Present' %}present{% else %}absent{% endif %}">
-              {{ r.status }}
-          </span>
+        <span class="status {% if r.status == 'Present' %}present{% else %}absent{% endif %}">
+          {{ r.status }}
+        </span>
       </div>
       {% endfor %}
 
       {% if not recent %}
-          <p style="color:#64748b;">No recent activity</p>
+        <p style="color:#64748b;">No recent activity</p>
       {% endif %}
-      </div>
-  </div>
-
-  <!-- BOTTOM -->
-  <div class="bottom-grid">
-    <div class="card">
-      <h4>View All Attendance</h4>
-      <p>Browse and manage student attendance records</p>
-      <button class="btn blue">View Records</button>
     </div>
 
-    <div class="card">
-      <h4>Analytics Dashboard</h4>
-      <p>View detailed attendance analytics and reports</p>
-      <button class="btn purple">View Analytics</button>
-    </div>
   </div>
 
-</div>
+  <!-- OPTIONAL TABLE (SCROLLABLE) -->
+  <div class="card" style="margin-top:20px;">
+    <h4>Student Records</h4>
 
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>PRN</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent %}
+          <tr>
+            <td>{{ r.name }}</td>
+            <td>{{ r.prn }}</td>
+            <td class="{% if r.status == 'Present' %}present{% else %}absent{% endif %}">
+              {{ r.status }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
+  </div>
 
 <!-- CHART.JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -139,23 +155,9 @@ window.onload = function () {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-
       plugins: {
-        legend: { display: false },
-
-        tooltip: {
-          backgroundColor: '#020617',
-          borderColor: '#1e293b',
-          borderWidth: 1,
-          displayColors: false,
-          callbacks: {
-            label: function(context) {
-              return context.dataset.label + " : " + context.raw;
-            }
-          }
-        }
+        legend: { display: false }
       },
-
       scales: {
         x: {
           grid: { display: false },
@@ -172,13 +174,5 @@ window.onload = function () {
 
 }
 </script>
-<script>
-  const weeklyData = {
-      labels: {{ weekly | map(attribute='day') | list | tojson }},
-      present: {{ weekly | map(attribute='present') | list | tojson }},
-      absent: {{ weekly | map(attribute='absent') | list | tojson }}
-  };
-</script>
-</body>
-</html>
-{%endblock%}
+
+{% endblock %}
