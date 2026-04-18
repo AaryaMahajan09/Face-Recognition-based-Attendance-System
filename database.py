@@ -3,7 +3,9 @@ import sqlite3
 DB_NAME = "database.db"
 
 def get_connection():
-    conn = sqlite3.connect(DB_NAME, timeout=10, check_same_thread=False)
+    conn = sqlite3.connect(DB_NAME, timeout=30, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout = 30000")
     conn.row_factory = sqlite3.Row
 
     conn.execute("PRAGMA journal_mode=WAL")
@@ -79,6 +81,17 @@ def create_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         subject TEXT,
         department TEXT
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS embeddings(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        prn TEXT,
+        name TEXT,
+        embedding TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id)
     )
     """)
 

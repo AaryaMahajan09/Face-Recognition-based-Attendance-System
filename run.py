@@ -5,8 +5,8 @@ from functools import wraps
 from datetime import datetime
 import numpy as np
 import cv2
-from register import register_student
-from recognizer import start_face_attendance, recognize, load_embeddings, mark_attendance_db, stop_camera
+from register1 import register_student
+from recognizer1 import recognize, load_embeddings, mark_attendance_db, stop_camera
 import threading
 import os
 import smtplib
@@ -26,12 +26,12 @@ GMAIL = ""
 APP_PASSWORD = ""
 
 
-COLLEGE_LAT = 18.998951751419046
-COLLEGE_LON = 72.81767908174002
+COLLEGE_LAT = 0
+COLLEGE_LON = 0
 
 
 
-MAX_DISTANCE_KM = 0.1    # 100 meters radius
+MAX_DISTANCE_KM = 100    # 100 meters radius
 
 @app.context_processor
 def inject_user():
@@ -536,6 +536,7 @@ def face_mark():
 
         if prn:
             mark_attendance_db(prn, department)
+            stop_camera()
             return {"status":"success","message":"Attendance marked via face"}
 
     return {"status":"error","message":"Face not recognized"}
@@ -632,6 +633,7 @@ def start_lec_page():
             JOIN users ON attendance.user_id = users.id
             JOIN students ON users.id = students.user_id
             WHERE attendance.lecture_id = ?
+            AND attendance.status = 'Present'
             ORDER BY attendance.time ASC
         """, (lecture["lecture_id"],))
 
@@ -745,25 +747,7 @@ def stop_lec():
         WHERE lecture_id = ?
     """, (lecture_id,))
 
-    # cur.execute("""
-    #     SELECT users.name, students.prn, attendance.subject, attendance.lecture_id,
-    #            attendance.date, attendance.time, attendance.status
-    #     FROM attendance
-    #     JOIN users ON attendance.user_id = users.id
-    #     JOIN students ON users.id = students.user_id
-    #     ORDER BY attendance.date DESC
-    # """)
-
-    # records = cur.fetchall()
-
-    # print("\n--- Attendance Records ---")
-
-    # for r in records:
-    #     print(
-    #         r["name"],"|",r["prn"],"|",r["subject"],"|",r["lecture_id"],"|",r["date"],"|",r["time"],"|",r["status"]
-    #     )
-
-    # print("--------------------------\n")
+    conn.commit()
 
     cur.execute("""
         SELECT id FROM users
@@ -782,7 +766,7 @@ def stop_lec():
         if student["id"] not in present_students:
             cur.execute("""
             INSERT OR IGNORE INTO attendance (user_id, lecture_id,subject,staff_name,department,date,time, status)
-            VALUES (?, ?,?,?,?,date('now'),time('now','localtime'), "Absent")
+            VALUES (?, ?,?,?,?,date('now','localtime'),time('now','localtime'), "Absent")
             """, (student["id"], lecture_id, subject, staff, department))
 
 

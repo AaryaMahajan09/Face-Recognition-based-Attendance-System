@@ -34,3 +34,4 @@ instance/
 
 # Face data (IMPORTANT for your project)
 image_data/
+data/
