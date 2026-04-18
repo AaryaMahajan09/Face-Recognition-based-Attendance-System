@@ -104,6 +104,16 @@ fetch("/check_lecture")
 // 🔥 START CAMERA
 function startCamera(){
 
+    if(scanInterval){
+        clearInterval(scanInterval);
+        scanInterval = null;
+    }
+
+    if(!lectureLoaded){
+        document.getElementById("status-msg").innerText = "⚠️ No active lecture";
+        return;
+    }
+
     if(!studentLat || !studentLon){
         document.getElementById("status-msg").innerText = "⚠️ Waiting for location...";
         document.getElementById("status-msg").className = "error";
@@ -115,7 +125,7 @@ function startCamera(){
         stream = s;
         document.getElementById("video").srcObject = stream;
 
-        scanInterval = setInterval(captureAndSend, 3000);  // ✅ store it
+        scanInterval = setInterval(captureAndSend, 5000);  // ✅ store it
 
         setTimeout(function(){
             if(scanInterval){
@@ -199,6 +209,7 @@ canvas.toBlob(function(blob){
 function stopCamera(){
 if(stream){
     stream.getTracks().forEach(track => track.stop());
+    stream = null;
 }
 }
 
