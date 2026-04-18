@@ -179,23 +179,6 @@ color:#ef4444
 
 
 /* ========================= */
-/* TABLET */
-/* ========================= */
-
-@media (max-width:1024px){
-
-.grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-.section{
-grid-template-columns:1fr;
-}
-
-}
-
-
-/* ========================= */
 /* MOBILE */
 /* ========================= */
 
@@ -241,6 +224,13 @@ height:200px!important;
 flex-direction:column;
 }
 
+.alert{
+background:linear-gradient(180deg,#3f0000,#1a0000);
+padding:20px;
+border-radius:16px;
+border:1px solid #7f1d1d
+}
+
 }
 
 
@@ -266,6 +256,14 @@ font-size:20px;
 
 canvas{
 height:180px!important;
+}
+
+.alert{
+background:linear-gradient(180deg,#3f0000,#1a0000);
+padding: 10px;
+border-radius:16px;
+border:1px solid #7f1d1d;
+width: 100%;
 }
 
 }

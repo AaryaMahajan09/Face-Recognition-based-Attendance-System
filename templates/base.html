@@ -3,100 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} {% endblock %}</title>
+    <title>{% block title %}AI Attendance{% endblock %}</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet"/>
-
 </head>
+
 <body>
-    
-    <div class="flex">
-        <div class="sidebar">
 
-            <div class="box1">
-                <div class="flex" id="b1">
-                    <img src="{{url_for('static', filename='images/scan-img.png')}}" alt="">
-                    <div class="b1-content">
-                        <h3 style="font-size: 25px;">AI Attendance</h3>
-                        <p>Student Portal</p>
-                    </div>
-                </div>
-                
-            </div>
+<div class="flex">
 
-            <div class="box1">
-                <div class="flex" id="b1">
-                    <h1 class="initial">
-                        {{ session["user_name"].strip()[0].upper() }}
-                    </h1>
-                    <div class="b1-content">
-                        <h3 style="font-size: 25px;">{{user_name}}</h3>
-                        <p>{{user_prn}}</p>
-                    </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
 
+        <!-- App Info -->
+        <div class="box1">
+            <div class="flex b1">
+                <img src="{{ url_for('static', filename='images/scan-img.png') }}" alt="Logo">
+                <div class="b1-content">
+                    <h3>AI Attendance</h3>
+                    <p>Student Portal</p>
                 </div>
             </div>
+        </div>
 
+        <!-- User Info -->
+        <div class="box1">
+            <div class="flex b1">
+                <h1 class="initial">
+                    {{ session.get("user_name", "U")[0].upper() }}
+                </h1>
+                <div class="b1-content">
+                    <h3>{{ user_name }}</h3>
+                    <p>{{ user_prn }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav>
             <ul>
-                <li class="{% if request.path == '/dashboard' %}active{% endif %}">
-                <a href="/dashboard"><i class="ri-pages-line"></i>Dashboard</a>
+                <li class="{{ 'active' if request.path == '/dashboard' else '' }}">
+                    <a href="/dashboard"><i class="ri-pages-line"></i> Dashboard</a>
                 </li>
 
-                <li class="{% if request.path == '/mark' %}active{% endif %}">
-                <a href="/mark"><i class="ri-camera-4-line"></i>Mark Attendance</a>
+                <li class="{{ 'active' if request.path == '/mark' else '' }}">
+                    <a href="/mark"><i class="ri-camera-4-line"></i> Mark Attendance</a>
                 </li>
 
-                <li class="{% if request.path == '/view' %}active{% endif %}">
-                <a href="/view"><i class="ri-calendar-line"></i>View Attendance</a>
+                <li class="{{ 'active' if request.path == '/view' else '' }}">
+                    <a href="/view"><i class="ri-calendar-line"></i> View Attendance</a>
                 </li>
 
-                <li class="{% if request.path == '/register_img' %}active{% endif %}">
-                <a href="/register_img"><i class="ri-user-add-line"></i>Register Face</a>
+                <li class="{{ 'active' if request.path == '/register_img' else '' }}">
+                    <a href="/register_img"><i class="ri-user-add-line"></i> Register Face</a>
                 </li>
 
                 <li class="logout">
-                <a href="/logout"><i class="ri-logout-box-r-line"></i>LogOut</a>
+                    <a href="/logout"><i class="ri-logout-box-r-line"></i> Logout</a>
                 </li>
             </ul>
+        </nav>
 
-        </div>
+    </aside>
 
-        <div class="fake"></div>
+    <!-- Spacer for layout -->
+    <div class="fake"></div>
 
-        
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="menu-btn" onclick="toggleSidebar()">
+            <i class="ri-menu-line"></i>
+        </button>
+    </header>
 
-        <div class="mobile-header">
-            <button class="menu-btn" onclick="toggleSidebar()">
-                <i class="ri-menu-line"></i>
-            </button>
-        </div>
-        <div class="main">
+    <!-- Main Content -->
+    <main class="main">
 
-            <!-- ✅ Flash messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash-msg {{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-msg {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            {% block content %}
-            {% endblock %}
-        </div>
-    </div>
+        {% block content %}{% endblock %}
 
+    </main>
 
+</div>
 
-    
-    <script>
+<!-- Script -->
+<script>
+function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("active");
+}
+</script>
 
-    function toggleSidebar(){
-        document.querySelector(".sidebar").classList.toggle("active");
-    }
-
-    </script>
 </body>
 </html>

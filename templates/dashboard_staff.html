@@ -70,29 +70,6 @@
       </div>
     </div>
 
-    <!-- RECENT LIST -->
-    <div class="recent-list">
-      {% for r in recent %}
-      <div class="recent-row">
-        <div class="avatar">{{ r.name[0].upper() }}</div>
-
-        <div class="info">
-          <p class="name">{{ r.name }}</p>
-          <p class="prn">{{ r.prn }}</p>
-        </div>
-
-        <span class="status {% if r.status == 'Present' %}present{% else %}absent{% endif %}">
-          {{ r.status }}
-        </span>
-      </div>
-      {% endfor %}
-
-      {% if not recent %}
-        <p style="color:#64748b;">No recent activity</p>
-      {% endif %}
-    </div>
-
-  </div>
 
   <!-- OPTIONAL TABLE (SCROLLABLE) -->
   <div class="card" style="margin-top:20px;">

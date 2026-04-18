@@ -59,10 +59,6 @@
   </div>
 </div>
 
-<div class="trend">
-  <h3>Weekly Attendance Trend</h3>
-  <canvas id="line"></canvas>
-</div>
 
 <div class="alert">
   <h3>Students Requiring Attention</h3>
@@ -104,25 +100,6 @@ new Chart(document.getElementById('pie'),{
   }
 });
 
-new Chart(document.getElementById('line'),{
-  type:'line',
-  data:{
-    labels:['Week1','Week2','Week3','Week4','Week5','Week6'],
-    datasets:[{
-      label:'Attendance Rate',
-      data:[88,91,86,93,90,94],
-      borderColor:'#3b82f6',
-      backgroundColor:'rgba(59,130,246,0.2)',
-      fill:true,
-      tension:0.4
-    }]
-  },
-  options:{
-    plugins:{legend:{labels:{color:'#fff'}}},
-    scales:{x:{ticks:{color:'#aaa'}},y:{ticks:{color:'#aaa'}}},
-    animation:{duration:1500}
-  }
-});
 </script>
 
 </body>

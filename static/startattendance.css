@@ -1,136 +1,191 @@
-
+/* ========================= */
+/* PAGE */
+/* ========================= */
 
 .page{
     padding:40px;
 }
+
+/* ========================= */
+/* TEXT */
+/* ========================= */
+
 .subtitle{
     color:#94a3b8;
     margin-bottom:25px;
 }
 
+/* ========================= */
+/* CARD (FIXED) */
+/* ========================= */
+
 .card{
     background:#0f172a;
     border:1px solid #1e293b;
-    border-radius:10px;
+    border-radius:12px;
     padding:30px;
-    width:70vw;
-    height: 50vh;
+    max-width:700px;     /* ✅ instead of 70vw */
+    width:100%;
+    margin:auto;         /* ✅ center */
 }
+
+/* ========================= */
+/* FORM */
+/* ========================= */
 
 label{
     display:block;
-    margin-bottom:8px;
+    margin-bottom:6px;
     margin-top:15px;
     color:#cbd5f5;
 }
 
-
-
 select,
 input{
-    width:90%;
+    width:100%;          /* ✅ FIX */
     padding:12px;
-    border-radius: 10px;
+    border-radius:10px;
     border:1px solid #334155;
     background:#020617;
     color:white;
-    font-size: 15px;
+    font-size:15px;
 }
 
-input{
-    width:40%;
+/* ========================= */
+/* TIME INPUT ROW */
+/* ========================= */
+
+.time-row{
+    display:flex;
+    gap:15px;
+    margin-top:10px;
 }
+
+.time-row input{
+    flex:1;
+}
+
+/* ========================= */
+/* BUTTONS (FIXED ALIGNMENT) */
+/* ========================= */
 
 .button-group{
-    margin:50px;
+    margin-top:30px;
     display:flex;
-    margin-left: 10px;
+    gap:15px;
+}
+
+/* Equal buttons */
+.start-btn,
+.stop-btn{
+    flex:1;
+    padding:14px;
+    border:none;
+    color:white;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px;
+    height:auto;
+    margin:0;            /* ✅ remove weird margins */
 }
 
 .start-btn{
     background:#15803d;
-    border:none;
-    padding:12px 20px;
-    color:white;
-    border-radius: 10px;
-    cursor:pointer;
-    width: 200px;
-    height: 60px;
 }
 
 .start-btn:hover{
-    background-color: #0e4e25;
+    background:#0e4e25;
 }
 
 .stop-btn{
     background:#b91c1c;
-    border:none;
-    padding:12px 20px;
-    color:white;
-    border-radius: 10px;
-    cursor:pointer;
-    width:200px;
-    height: 60px;
-    margin-left: 20vw;
 }
 
 .stop-btn:hover{
     background:#7c1313;
 }
 
-
+/* ========================= */
+/* TIP */
+/* ========================= */
 
 .tip{
     margin-top:15px;
     color:#94a3b8;
-    margin-left: 50px;
+    text-align:center;
 }
 
-.b{
-    width: 100%;
-}
+/* ========================= */
+/* TABLE CARD */
+/* ========================= */
 
 .card1{
-    width: 70vw;
-    height: 40vh;
+    max-width:900px;
+    width:100%;
+    margin:40px auto;
+    padding:20px;
     background:#0f172a;
     border:1px solid #1e293b;
-    margin: 40px;
-    border-radius: 10px;
-
+    border-radius:12px;
 }
 
-.card1 p{
-    margin-top: 20px;
-    margin-left: 30px;
+/* ========================= */
+/* TABLE */
+/* ========================= */
+
+.table-wrapper{
+    overflow-x:auto;     /* ✅ scrollable */
 }
 
-.card1 h2{
-    margin-top: 20px;
-    margin-left: 30px;
+.attend-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:14px;
 }
 
-.attend-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 14px;
+.attend-table th{
+    background:#1e293b;
+    color:#94a3b8;
+    padding:10px;
+    text-align:left;
 }
 
-.attend-table th {
-    background: #1e293b;
-    color: #94a3b8;
-    padding: 10px 15px;
-    text-align: left;
-    font-weight: 600;
+.attend-table td{
+    padding:10px;
+    border-bottom:1px solid #1e293b;
+    color:#e2e8f0;
 }
 
-.attend-table td {
-    padding: 10px 15px;
-    border-bottom: 1px solid #1e293b;
-    color: #e2e8f0;
+.attend-table tr:hover td{
+    background:#1e293b;
 }
 
-.attend-table tr:hover td {
-    background: #1e293b;
+/* ========================= */
+/* 📱 MOBILE ONLY */
+/* ========================= */
+
+@media (max-width:768px){
+
+    .page{
+        padding:20px 12px;
+    }
+
+    .card{
+        padding:20px;
+    }
+
+    .time-row{
+        flex-direction:column;  /* stack */
+    }
+
+    .button-group{
+        flex-direction:column;
+    }
+
+    .start-btn,
+    .stop-btn{
+        width:100%;
+    }
+
 }
