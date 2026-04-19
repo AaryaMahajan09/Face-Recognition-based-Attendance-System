@@ -3,15 +3,15 @@
 /* ========================= */
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    font-family:Arial, Helvetica, sans-serif;
-    color:white;
-    overflow-x:hidden;
+font-family:Arial, Helvetica, sans-serif;
+color:white;
+overflow-x:hidden;
 }
 
 /* ========================= */
@@ -19,10 +19,10 @@ body{
 /* ========================= */
 
 .dashboard-container{
-    width:100%;
-    margin:0 auto;
-    padding:30px 20px 40px;
-    max-width:1400px;  
+width:100%;
+margin:0 auto;
+padding:30px 20px 40px;
+max-width:1400px;
 }
 
 /* ========================= */
@@ -30,14 +30,14 @@ body{
 /* ========================= */
 
 .dashboard-header h1{
-    font-size:26px;
-    line-height:1.4;
+font-size:26px;
+line-height:1.4;
 }
 
 .dashboard-header p{
-    color:#9ca3af;
-    margin-top:6px;
-    font-size:14px;
+color:#9ca3af;
+margin-top:6px;
+font-size:14px;
 }
 
 /* ========================= */
@@ -45,10 +45,10 @@ body{
 /* ========================= */
 
 .stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap: 25px;
-    margin-top:25px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap: 25px;
+margin-top:25px;
 }
 
 /* ========================= */
@@ -56,64 +56,65 @@ body{
 /* ========================= */
 
 .card{
-    background:#111827;
-    padding:18px;
-    border-radius:12px;
-    transition:0.2s;
-    margin-top: 10px;
+background:#111827;
+padding:18px;
+border-radius:12px;
+transition:0.2s;
+margin-top: 10px;
 }
 
 .card:hover{
-    transform:translateY(-3px);
+transform:translateY(-3px);
 }
 
 .card-title{
-    font-size:13px;
-    color:#9ca3af;
+font-size:13px;
+color:#9ca3af;
 }
 
 .status-present{
-    font-size:22px;
-    color:#22c55e;
-    font-weight:bold;
-    margin-top:8px;
+font-size:22px;
+color:#22c55e;
+font-weight:bold;
+margin-top:8px;
 }
 
 .card-sub{
-    margin-top:4px;
-    font-size:12px;
-    color:#9ca3af;
+margin-top:4px;
+font-size:12px;
+color:#9ca3af;
 }
 
 /* ========================= */
-/* CHART */
+/* CHART SECTION */
 /* ========================= */
 
-.chart-container{
-    margin-top:25px;
-    background:#111827;
-    padding:18px;
-    border-radius:12px;
-    
-}
+/* 🔥 FIX: Always stack charts vertically */
 .charts-grid{
-    display: grid;
-    grid-template-columns: 2fr 1.5fr; /* main chart bigger */
-    gap: 25px;
-    margin-top: 25px;
+display: grid;
+grid-template-columns: 1fr;   /* ONE COLUMN */
+gap: 25px;
+margin-top: 25px;
 }
 
-/* 🔥 THIS IS THE IMPORTANT FIX */
+/* Chart card */
+.chart-container{
+background:#111827;
+padding:24px;
+border-radius:12px;
+}
+
+/* 🔥 Bigger chart */
 .chart-wrapper{
-    width:100%;
-    height:500px;
-    position:relative;
+width:100%;
+height:600px;
+position:relative;
 }
 
-/* Force canvas to scale */
+/* Force chart to fill container */
 .chart-wrapper canvas{
-    width:100% !important;
-    height:100% !important;
+width:100% !important;
+height:100% !important;
 }
 
 /* ========================= */
@@ -121,93 +122,88 @@ body{
 /* ========================= */
 
 .action-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:18px;
-    margin-top:25px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+margin-top:25px;
 }
 
 .action-card{
-    padding:18px;
-    border-radius:12px;
-    transition:0.2s;
+padding:18px;
+border-radius:12px;
+transition:0.2s;
 }
 
 .action-card:hover{
-    transform:translateY(-3px);
+transform:translateY(-3px);
 }
 
 .action-card h3{
-    font-size:16px;
+font-size:16px;
 }
 
 .action-card p{
-    color:#9ca3af;
-    font-size:13px;
-    margin-top:5px;
+color:#9ca3af;
+font-size:13px;
+margin-top:5px;
 }
 
 /* COLORS */
 
 .mark{
-    background:linear-gradient(135deg,#1e3a8a,#1e40af);
+background:linear-gradient(135deg,#1e3a8a,#1e40af);
 }
 
 .register{
-    background:linear-gradient(135deg,#312e81,#4c1d95);
+background:linear-gradient(135deg,#312e81,#4c1d95);
 }
 
 /* BUTTON */
 
 button{
-    margin-top:10px;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    width:100%;
-    font-size:14px;
+margin-top:10px;
+padding:12px;
+border:none;
+border-radius:8px;
+width:100%;
+font-size:14px;
 }
 
 /* ========================= */
-/* 📱 MOBILE FIX */
+/* 📱 MOBILE */
 /* ========================= */
 
-@media (max-width:768px){
-    .charts-grid{
-        display:flex;
-        overflow-x:auto;
-        gap:16px;
-        padding-bottom:10px;
-        scroll-snap-type:x mandatory;
-    }
+@media (max-width:768px)
+{
+.dashboard-container{
+    padding:15px 12px 25px;
+}
 
+/* STACK STATS */
+.stats{
+    grid-template-columns:1fr;
+    gap:12px;
+}
 
-    .dashboard-container{
-        padding:15px 12px 25px;
-    }
+/* STACK ACTIONS */
+.action-grid{
+    grid-template-columns:1fr;
+    gap:12px;
+}
 
-    /* STACK EVERYTHING */
-    .stats{
-        grid-template-columns:1fr;
-        gap:12px;
-    }
+/* 🔥 KEEP CHARTS VERTICAL (NO SCROLL) */
+.charts-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+}
 
-    .action-grid{
-        grid-template-columns:1fr;
-        gap:12px;
-    }
+/* Slightly smaller height for mobile */
+.chart-wrapper{
+    height:300px;
+}
 
-    /* CHART FIX FOR PHONE */
-    .chart-wrapper{
-        height:260px;
-    }
-
-    /* Prevent chart overflow */
-    .chart-container{
-        padding:14px;
-        min-width:300px;  
-        flex-shrink:0;
-        scroll-snap-align:start;
-    }
+.chart-container{
+    padding:16px;
+}
 
 }

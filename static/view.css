@@ -1,7 +1,6 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0b0f17;
   color: #fff;
   overflow-x: hidden;
 }
@@ -77,9 +76,9 @@ h1 {
 /* HISTORY */
 
 .history {
-  background: #121826;
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
+  margin: left 5px;;
 }
 
 .history h2 {
@@ -135,23 +134,6 @@ td {
 }
 
 
-/* ========================= */
-/* TABLET */
-/* ========================= */
-
-@media (max-width:1024px){
-
-.cards {
-  flex-direction: row;
-}
-
-}
-
-
-/* ========================= */
-/* MOBILE */
-/* ========================= */
-
 @media (max-width:768px){
 
 .container {
@@ -186,33 +168,12 @@ th, td {
   padding: 10px;
   font-size: 14px;
 }
-
-}
-
-
-
-
-@media (max-width:480px){
-
-.container {
-  padding: 15px;
-}
-
-.card,
 .history {
-  padding: 15px;
+  padding: 20px;
+  border-radius: 12px;
 }
 
-.percentage {
-  font-size: 24px;
+.history h2 {
+  margin-bottom: 5px;
 }
-
-.stat {
-  font-size: 20px;
-}
-
-th, td {
-  font-size: 13px;
-}
-
 }
