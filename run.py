@@ -358,35 +358,21 @@ def dashboard_staff():
         date_str = day.strftime("%Y-%m-%d")
         day_label = day.strftime("%a")
 
+        # ✅ COUNT directly from attendance table
         cur.execute("""
-            SELECT lecture_id
-            FROM lectures
+            SELECT 
+                COUNT(CASE WHEN status='Present' THEN 1 END),
+                COUNT(CASE WHEN status='Absent' THEN 1 END)
+            FROM attendance
             WHERE department = ?
             AND staff_name = ?
-            AND date(start_time) = ?
-            ORDER BY lecture_id DESC
-            LIMIT 1
+            AND date = ?
         """, (department, staff_name, date_str))
 
-        lec_day = cur.fetchone()
+        result = cur.fetchone()
 
-        if not lec_day:
-            present = 0
-            absent = 0
-        else:
-            lecture_id = lec_day["lecture_id"]
-
-            cur.execute("""
-                SELECT COUNT(*) FROM attendance
-                WHERE lecture_id = ? AND status = 'Present'
-            """, (lecture_id,))
-            present = cur.fetchone()[0]
-
-            cur.execute("""
-                SELECT COUNT(*) FROM attendance
-                WHERE lecture_id = ? AND status = 'Absent'
-            """, (lecture_id,))
-            absent = cur.fetchone()[0]
+        present = result[0] if result[0] else 0
+        absent = result[1] if result[1] else 0
 
         weekly.append({
             "day": day_label,
@@ -424,6 +410,8 @@ def dashboard_staff():
 
     # ── Attendance %
     rate = round((today_present / total_students * 100)) if total_students > 0 else 0
+
+    # print("WEEKLY DATA:", weekly)
 
     return render_template("dashboard_staff.html",
         staff_name=staff_name,
