@@ -10,6 +10,7 @@ from recognizer1 import recognize, load_embeddings, mark_attendance_db, stop_cam
 import threading
 import os
 import smtplib
+import re
 import random
 import time
 from math import radians, sin, cos, sqrt, atan2
@@ -26,8 +27,8 @@ GMAIL = ""
 APP_PASSWORD = ""
 
 
-COLLEGE_LAT = 0
-COLLEGE_LON = 0
+COLLEGE_LAT = 19.04823
+COLLEGE_LON = 72.8176
 
 
 
@@ -67,6 +68,17 @@ def for_student_only(f):
             return redirect("/dashboard_staff")
         return f(*args, **kwargs)
     return wrapper
+
+def is_valid_password(password):
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"[0-9]", password):
+        return False
+    return True
 
 def get_distance(lat1, lon1, lat2, lon2):
     R = 6371
@@ -212,6 +224,9 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
 
+        if not is_valid_password(password):
+            return "Password must be 8+ chars, include upper, lower, number"
+
         if session.get("otp_verified_email") != email:
             flash("Please verify your email via OTP first", "error")
             return redirect("/register")
@@ -302,83 +317,112 @@ def dashboard_staff():
     conn = get_connection()
     cur = conn.cursor()
 
-    # ── Total students in department
+    # ── Total students (unchanged)
     cur.execute("""
         SELECT COUNT(*) as total FROM users
         WHERE department = ? AND role = 'student'
     """, (department,))
     total_students = cur.fetchone()["total"]
 
-    # ── Today's attendance
+    # ── Latest lecture of THIS STAFF
     cur.execute("""
-        SELECT COUNT(DISTINCT attendance.user_id) as present
-        FROM attendance
-        JOIN lectures ON attendance.lecture_id = lectures.lecture_id
-        WHERE lectures.department = ?
-        AND attendance.date = date('now','localtime')
-    """, (department,))
-    today_present = cur.fetchone()["present"]
+        SELECT lecture_id
+        FROM lectures
+        WHERE department = ?
+        AND staff_name = ?
+        ORDER BY lecture_id DESC
+        LIMIT 1
+    """, (department, staff_name))
+    lec = cur.fetchone()
 
-    # ── Weekly attendance (Mon to Fri)
-    weekly = []
-    today = datetime.today()
-    # go back to Monday of current week
-    monday = today - timedelta(days=today.weekday())
-
-    for i in range(5):  # Mon to Fri
-        day = monday + timedelta(days=i)
-        date_str = day.strftime("%Y-%m-%d")
-        day_label = day.strftime("%a")  # Mon, Tue etc
+    if lec:
+        lecture_id = lec["lecture_id"]
 
         cur.execute("""
-            SELECT COUNT(DISTINCT attendance.user_id) as present
+            SELECT COUNT(*) as present
             FROM attendance
-            JOIN lectures ON attendance.lecture_id = lectures.lecture_id
-            WHERE lectures.department = ?
-            AND attendance.date = ?
-        """, (department, date_str))
-        present = cur.fetchone()["present"]
+            WHERE lecture_id = ?
+            AND status = 'Present'
+        """, (lecture_id,))
+        today_present = cur.fetchone()["present"]
+    else:
+        today_present = 0
 
-        absent = total_students - present
+    # ── Weekly attendance (ONLY THIS STAFF)
+    weekly = []
+    today = datetime.today()
+    monday = today - timedelta(days=today.weekday())
+
+    for i in range(5):
+        day = monday + timedelta(days=i)
+        date_str = day.strftime("%Y-%m-%d")
+        day_label = day.strftime("%a")
+
+        cur.execute("""
+            SELECT lecture_id
+            FROM lectures
+            WHERE department = ?
+            AND staff_name = ?
+            AND date(start_time) = ?
+            ORDER BY lecture_id DESC
+            LIMIT 1
+        """, (department, staff_name, date_str))
+
+        lec_day = cur.fetchone()
+
+        if not lec_day:
+            present = 0
+            absent = 0
+        else:
+            lecture_id = lec_day["lecture_id"]
+
+            cur.execute("""
+                SELECT COUNT(*) FROM attendance
+                WHERE lecture_id = ? AND status = 'Present'
+            """, (lecture_id,))
+            present = cur.fetchone()[0]
+
+            cur.execute("""
+                SELECT COUNT(*) FROM attendance
+                WHERE lecture_id = ? AND status = 'Absent'
+            """, (lecture_id,))
+            absent = cur.fetchone()[0]
+
         weekly.append({
             "day": day_label,
             "present": present,
-            "absent": absent if absent > 0 else 0
+            "absent": absent
         })
 
+    # ── Recent activity (latest lecture of THIS STAFF)
+    last_lec_id = lec["lecture_id"] if lec else None
 
-    cur.execute("""
-        SELECT max(lecture_id) FROM lectures
-        WHERE lectures.department = ?
-    """, (department,))
-    last_lec = cur.fetchone()
-    last_lec_id = last_lec[0] if last_lec else None
+    if last_lec_id:
+        cur.execute("""
+            SELECT users.name, students.prn,
+                   attendance.time, attendance.status
+            FROM attendance
+            JOIN users ON attendance.user_id = users.id
+            JOIN students ON users.id = students.user_id
+            WHERE attendance.lecture_id = ?
+            ORDER BY attendance.id DESC
+        """, (last_lec_id,))
+        recent = cur.fetchall()
+    else:
+        recent = []
 
-    # ── Recent activity — last attendance records
-    cur.execute("""
-        SELECT users.name, students.prn,
-               attendance.time, attendance.status, attendance.date, attendance.lecture_id
-        FROM attendance
-        JOIN users ON attendance.user_id = users.id
-        JOIN students ON users.id = students.user_id
-        JOIN lectures ON attendance.lecture_id = lectures.lecture_id
-        WHERE lectures.department = ?
-		AND attendance.lecture_id = ?
-        ORDER BY attendance.id DESC
-    """, (department,last_lec_id))
-    recent = cur.fetchall()
-
-    # ── Active lecture check
+    # ── Active lecture (ONLY THIS STAFF)
     cur.execute("""
         SELECT * FROM lectures
-        WHERE department = ? AND is_active = 1
-    """, (department,))
+        WHERE department = ?
+        AND staff_name = ?
+        AND is_active = 1
+    """, (department, staff_name))
     active_lecture = cur.fetchone()
-    
 
     conn.close()
 
-    # today's attendance rate
+    # ── Attendance %
     rate = round((today_present / total_students * 100)) if total_students > 0 else 0
 
     return render_template("dashboard_staff.html",
@@ -790,14 +834,81 @@ def stop_lec():
     return redirect("/start_lec")
 
 
-
-
-
 @app.route("/overview")
 @login_required
 @for_staff_only
 def overview():
     return render_template("overview.html")
+
+
+@app.route("/overview_data")
+@login_required
+@for_staff_only
+def overview_data():
+    department = session.get("user_department")
+    staff_name = session.get("user_name")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # ── Total students (unchanged)
+    cur.execute("""
+        SELECT COUNT(*) FROM users
+        WHERE department=? AND role='student'
+    """, (department,))
+    total_students = cur.fetchone()[0]
+
+    # ── Attendance per student (ONLY THIS STAFF)
+    cur.execute("""
+        SELECT users.name,
+               COUNT(CASE WHEN attendance.status='Present' THEN 1 END) * 100.0 / COUNT(*) as percentage
+        FROM attendance
+        JOIN users ON attendance.user_id = users.id
+        JOIN lectures ON attendance.lecture_id = lectures.lecture_id
+        WHERE lectures.department = ?
+        AND lectures.staff_name = ?
+        GROUP BY users.id
+    """, (department, staff_name))
+
+    students = cur.fetchall()
+
+    students_list = [
+        {"name": row[0], "percentage": round(row[1], 2)}
+        for row in students
+    ]
+
+    # ── Average attendance
+    avg = round(
+        sum(s["percentage"] for s in students_list) / len(students_list),
+        2
+    ) if students_list else 0
+
+    # ── Present vs Absent (ONLY THIS STAFF)
+    cur.execute("""
+        SELECT 
+        COUNT(CASE WHEN attendance.status='Present' THEN 1 END),
+        COUNT(CASE WHEN attendance.status='Absent' THEN 1 END)
+        FROM attendance
+        JOIN lectures ON attendance.lecture_id = lectures.lecture_id
+        WHERE lectures.department = ?
+        AND lectures.staff_name = ?
+    """, (department, staff_name))
+
+    present, absent = cur.fetchone()
+
+    # ── Low attendance students
+    low_students = [s for s in students_list if s["percentage"] < 80]
+
+    conn.close()
+
+    return {
+        "total_students": total_students,
+        "average": avg,
+        "present": present,
+        "absent": absent,
+        "students": students_list,
+        "low_students": low_students
+    }
 
 
 

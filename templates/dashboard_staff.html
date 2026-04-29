@@ -1,15 +1,8 @@
 {% extends "base_staff.html" %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Attendance Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='dashstaff.css') }}">
-</head>
-
-<body>
+<link rel="stylesheet" href="{{ url_for('static', filename='dashstaff.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="container">
 
@@ -39,11 +32,7 @@
     <div class="card">
       <h4>System Status</h4>
       <h2 style="color: #22c55e;">
-        {% if active_lecture %}
-          Active
-        {% else %}
-          Online
-        {% endif %}
+        {% if active_lecture %} Active {% else %} Online {% endif %}
       </h2>
       <p>
         {% if active_lecture %}
@@ -55,23 +44,17 @@
     </div>
   </div>
 
-  <!-- MIDDLE -->
-  <div class="main-grid">
+  <!-- CHART -->
+  <div class="card">
+    <h4>Weekly Attendance</h4>
+    <p>Present vs Absent this week</p>
 
-    <!-- CHART -->
-    <div class="card">
-      <h4>Weekly Attendance</h4>
-      <p>Present vs Absent this week</p>
-
-      <div class="chart-container">
-        <div class="chart-wrapper">
-          <canvas id="attendanceChart"></canvas>
-        </div>
-      </div>
+    <div class="chart-container">
+      <canvas id="attendanceChart"></canvas>
     </div>
+  </div>
 
-
-  <!-- OPTIONAL TABLE (SCROLLABLE) -->
+  <!-- STUDENT TABLE -->
   <div class="card" style="margin-top:20px;">
     <h4>Student Records</h4>
 
@@ -97,59 +80,16 @@
         </tbody>
       </table>
     </div>
-
   </div>
 
-<!-- CHART.JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</div>
 
-<script>
-window.onload = function () {
-
-  const ctx = document.getElementById('attendanceChart');
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      datasets: [
-        {
-          label: 'present',
-          data: [45, 50, 42, 47, 44],
-          backgroundColor: '#22c55e',
-          borderRadius: 6,
-          barThickness: 18
-        },
-        {
-          label: 'absent',
-          data: [5, 2, 10, 3, 6],
-          backgroundColor: '#ef4444',
-          borderRadius: 6,
-          barThickness: 18
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#94a3b8' }
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: '#1e293b' },
-          ticks: { color: '#94a3b8' }
-        }
-      }
-    }
-  });
-
-}
+<!-- 🔥 DATA FOR JS -->
+<script id="weekly-data" type="application/json">
+{{ weekly | tojson }}
 </script>
+
+<!-- 🔥 YOUR JS FILE -->
+<script src="{{ url_for('static', filename='js/dashboard_staff.js') }}"></script>
 
 {% endblock %}
