@@ -346,18 +346,26 @@ def dashboard_staff():
             "absent": absent if absent > 0 else 0
         })
 
-    # ── Recent activity — last 5 attendance records
+
+    cur.execute("""
+        SELECT max(lecture_id) FROM lectures
+        WHERE lectures.department = ?
+    """, (department,))
+    last_lec = cur.fetchone()
+    last_lec_id = last_lec[0] if last_lec else None
+
+    # ── Recent activity — last attendance records
     cur.execute("""
         SELECT users.name, students.prn,
-               attendance.time, attendance.status, attendance.date
+               attendance.time, attendance.status, attendance.date, attendance.lecture_id
         FROM attendance
         JOIN users ON attendance.user_id = users.id
         JOIN students ON users.id = students.user_id
         JOIN lectures ON attendance.lecture_id = lectures.lecture_id
         WHERE lectures.department = ?
+		AND attendance.lecture_id = ?
         ORDER BY attendance.id DESC
-        LIMIT 5
-    """, (department,))
+    """, (department,last_lec_id))
     recent = cur.fetchall()
 
     # ── Active lecture check
@@ -366,6 +374,7 @@ def dashboard_staff():
         WHERE department = ? AND is_active = 1
     """, (department,))
     active_lecture = cur.fetchone()
+    
 
     conn.close()
 
@@ -736,7 +745,6 @@ def stop_lec():
     lecture_id = lecture["lecture_id"]
     subject = lecture["subject"]
     staff = lecture["staff_name"]
-    department = lecture["department"]
 
     print(lecture, subject, staff)
     
@@ -763,12 +771,17 @@ def stop_lec():
     present_students = {row["user_id"] for row in cur.fetchall()}
 
     for student in students:
-        if student["id"] not in present_students:
-            cur.execute("""
-            INSERT OR IGNORE INTO attendance (user_id, lecture_id,subject,staff_name,department,date,time, status)
-            VALUES (?, ?,?,?,?,date('now','localtime'),time('now','localtime'), "Absent")
-            """, (student["id"], lecture_id, subject, staff, department))
+        student_id = student["id"]
 
+        if student_id not in present_students:
+            try:
+                cur.execute("""
+                INSERT OR IGNORE INTO attendance (user_id, lecture_id,subject,staff_name,department,date,time, status)
+                VALUES (?, ?,?,?,?,date('now','localtime'),time('now','localtime'), "Absent")
+                """, (student["id"], lecture_id, subject, staff, department))
+            
+            except Exception as e:
+                print("Error inserting absent:", e)
 
     conn.commit()
     conn.close()
