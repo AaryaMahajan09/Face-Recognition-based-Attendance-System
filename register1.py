@@ -6,7 +6,7 @@ from keras_facenet import FaceNet
 from mtcnn import MTCNN
 from database import get_connection
 
-DATASET_PATH = "data/face_img"
+DATASET_PATH = "image_data"
 
 embedder = FaceNet()
 detector = MTCNN()
